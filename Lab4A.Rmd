@@ -1,0 +1,120 @@
+---
+title: "Lab4A"
+author: "Anandu Muralidharan"
+date: "2023-02-15"
+output:
+  word_document: default
+---
+```{r}
+df <- read.csv("Titanic1.csv")
+head(df, 5)
+```
+
+```{r}
+cat("\nColumn names: ", colnames(dataset))
+cat("\nSummary of data: \n")
+summary(df)
+cat("\nStructure of data: \n")
+str(df)
+```
+From the summary we can see that Age is the only column with numbers, the rest are string. Another thing to view here is that the number of NA's in Age is 177.
+
+There are two ways to resolve the issue with Age for the time being. 
+First way is to get ride of the 177 rows. 
+Second way would be to replace the NAs in the column with the mean value of 29.70 or 30.
+
+
+In this we shall replace all the na values with the mean value.
+```{r}
+mean_age = mean(df$Age, na.rm = TRUE)
+#Mean value of age
+new_df <- df
+new_df$Age[is.na(new_df$Age)] <- mean_age
+```
+
+
+```{r}
+summary(new_df)
+```
+
+```{r}
+cat("Unique values of each column: \n")
+cat("Survived: ",unique(new_df$Survived), "\n")
+cat("PClass: ",unique(new_df$Pclass), "\n")
+cat("Sex: ",unique(new_df$Sex), "\n")
+```
+Here we can see that each of these columns are supposed to be ordinal values
+
+```{r}
+table(new_df$Survived == "0")
+```
+Here we have come to realize that out of 714 rows, we have 300 rows which has the value "0" in it, and the rest 414 has the two classes Dead/alive.
+
+```{r}
+addmargins(table(new_df$Survived))
+```
+```{r}
+barplot(table(new_df$Survived), main="Titanic Survived", xlab="survived", ylab="frequency")
+```
+Here we can see that there are three values in the dataframe which includes zero, Alive and dead. 
+From here there are two ways to forward:
+1) Assuming that the value "zero" is similar to undefined for this case we can drop that portion.
+2) Assume zero be the part of one of the class and merge that with the other.
+```{r}
+new_df_no_zero <- subset(new_df,Survived != "0")
+```
+At this point we have new_df_no_zero as a clean dataset which can be further used to perform analysis. 
+However, one issue here is that the number of rows has dropped down 414 rows. We have lost almost half of the data at this point.
+
+```{r}
+barplot(table(new_df_no_zero$Survived), main="Titanic Survived", xlab="survived", ylab="frequency")
+```
+From this graph we can understand that most crew members and passengers have not survived.
+
+```{r}
+pie(table(new_df_no_zero$Survived))
+```
+```{r}
+addmargins(prop.table(table(new_df_no_zero$Survived)))
+```
+So around 70% people survived the accident.
+
+This is factually incorrect specially since it was known that majority of people couldn't survive the accident. This means our plan of getting rid of zeros wasn't the right way to go. 
+The better method would be assuming that zero was also the same set as one of the class. Given we have reached the conclusion that current dataframe is not factually correct we can add the zeros to the class of "Dead".
+
+```{r}
+new_df_change_zero <- new_df
+new_df_change_zero$Survived[new_df_change_zero$Survived == "0"] <- "Dead"
+unique(new_df_change_zero$Survived)
+```
+```{r}
+barplot(table(new_df_change_zero$Survived), main="Titanic Survived", xlab="survived", ylab="frequency")
+```
+```{r}
+pie(table(new_df_change_zero$Survived))
+```
+```{r}
+addmargins(prop.table(table(new_df_change_zero$Survived)))
+```
+This shows that around 59.38% people died while 40.61% people managed to survive. This seems much more closer to the factually known knowledge.
+
+
+```{r}
+barplot(table(new_df_no_zero$Sex), main="Titanic Gender", xlab="Gender", ylab="frequency")
+```
+Female population was slightly more than male.
+
+```{r}
+barplot(table(new_df_no_zero$Pclass), main="Titanic Survived", xlab="Class", ylab="frequency")
+```
+Majority of people belonged to third class, followed by first.
+
+```{r}
+table(new_df_change_zero$Survived, new_df_change_zero$Pclass)
+```
+Here we can infer that most people survived belonged to the first class, and most people to die belonged to the third class
+
+```{r}
+table(new_df_change_zero$Survived, new_df_change_zero$Sex)
+```
+Here we can infer that most females survived the accident, while most males didn't make it.

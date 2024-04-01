@@ -1,0 +1,153 @@
+---
+title: "Lab 4A"
+author: "Nehal Ur Rahman"
+date: "`r Sys.Date()`"
+output: word_document
+---
+#NAME: NEHAL UR RAHMNAN
+#STUDENT ID: 991691259
+
+##Introduction 
+#In lab 4A we are going to analyze a Titanic dataset which consists of 4 columns.There are 891 rows in the given dataset. This dataset gives us an idea of the demograph of the people in the titanic ship.
+---
+```{r}
+titanic <- read.csv("Titanic1.csv")
+head(titanic)
+```
+#We are loading the below library to perform various functions.
+```{r}
+library(sets)
+library(ggplot2)
+library(tidyverse)
+library(ISLR)
+library(moments)
+library(dplyr) 
+```
+
+#We are using the cat function to print the column names of the titanic dataset with the help of colnames function.
+```{r}
+cat("Column Names : ", colnames(titanic))
+```
+#As we can see in the output, there are 4 columna in the dataset.The columns are Survived Pclass Sex Age.
+
+```{r}
+cat("\nSummary of data: \n")
+summary(titanic)
+```
+#Now we use the summary function to print the summary of all the variables but we get the statistical information of the Age column only because it is the only numerical variable. 
+#We also see that there 177 Na's in the Age variable which will be cleaned later.
+
+```{r}
+cat("\nStructure of data: \n")
+str(titanic)
+```
+#We have also used the function colSums to find the sum of na values in the dataset.
+```{r}
+colSums(is.na(titanic))
+```
+
+#We have fetched the structure of the data to get an idea about the datatypes of the variables. So we can see that there are 4 variables out of which 3 are character variables and 1 is a numerical variable.
+```{r}
+#We create a variable mage to store the value of mean value of Age variable from the titanic dataset 
+mage = mean(titanic$Age, na.rm = TRUE)
+mage
+```
+#As we can see above the mean of the age variable is 29.69912. We get the mean of the Age variable only after removing the NA values which is why we have the code "na.rm=TRUE".
+
+
+#Now we create a new dataset called new_titanic from titanic dataset. We do this so we can keep the originality of the titanic dataset. In this new daatset we put the mean value of age in the Na rows of the Age column. 
+#We have done this to provide a more refined dataset.
+```{r}
+new_titanic <- titanic
+mage -> new_titanic$Age[is.na(new_titanic$Age)] 
+head(new_titanic)
+```
+#Here, we can see that now the Na values in the Age column are replaced by the mean(29.69912).
+
+```{r}
+colSums(new_titanic[is.na(new_titanic$Age)])
+cat("\n")
+summary(new_titanic)
+```
+#We again check the summary of the the new dataset called new_titanic to make sure that the age variable does not contaion Na variables. 
+
+
+```{r}
+cat("Index:", which(is.na(titanic$Age)))
+```
+#We used the which function to find the index of all the missing values in the age column.
+```{r}
+colSums(is.na(new_titanic))
+```
+#Now we see if any column consists of missing values in order to remove any columns missing more than 2 values.
+```{r}
+str(new_titanic)
+```
+#We are using the str function to check the data type and row values of the new dataset.
+
+```{r}
+table(new_titanic$Survived == "0")
+```
+#We use the table function to see how many times 0 has occured in the Survived variable.
+
+```{r}
+table(new_titanic$Survived)
+```
+#As we can see above, there were 342 alive and 154 dead in the titanic ship which is not matching  with the facts that happened in 1912. According to the facts, majority of the people who were present in the ship were dead. Moreover, we notice that there 395 0 values in the Survival column.
+
+#Therefore, to solve this problem we are going to replace the 0's by DEAD because we are going to assume that the 0's in the survival column means that the passenger is dead.
+
+```{r}
+titanic_sr <- new_titanic
+titanic_sr$Survived[titanic_sr$Survived == "0"] <- "Dead"
+unique(titanic_sr$Survived) #We use the unique function to display the unique groups in the Survived column
+```
+#We now confirm the Survive column contains only alive and dead .
+
+
+```{r}
+barplot(table(titanic_sr$Survived), main="Survival rate", xlab="survived", ylab="frequency", col=c("green","red"))
+```
+#We have created a plot for seeing the distribution of Alive and Dead values in the survivbal dataset.
+#Therefore, according to the dataset that we see above we can infer that majority of the people were dead.
+
+```{r}
+pie(table(titanic_sr$Survived), col=c("green","red"))
+```
+#We also have created a pie chart to see the distribution of Alive and Dead people. From the pie chart we can see that more than 50% of the people on the Titanic were declared dead.
+
+```{r}
+prop.table(table(titanic_sr$Survived))
+```
+#To see the exact percentage of the dead and alive people in the titanic ship, we use the prop.table function.
+#So here we can see that 61.61% were Dead and 38.38% were Alive
+
+
+```{r}
+barplot(table(titanic_sr$Sex), main="Gender Distribution in Titanic", xlab="Gender", ylab="Frequency", col=c("pink","lightblue"))
+```
+#As we can see above, the gender distributuion of the titanic is shown above. We can see that male population was much more than the female population in the titanic ship.
+
+```{r}
+table(titanic_sr$Survived, titanic_sr$Sex)
+```
+#We also have created a table to show how many male and female were alive or dead in the titanic ship.
+#We see that more females were alive and more males were dead.
+
+```{r}
+table(titanic_sr$Survived, titanic_sr$Pclass)
+```
+#Here we have created a table to show how many people are alive or dead from the 3 different passenger classes.
+
+```{r}
+barplot(table(titanic_sr$Pclass), main="Population according to the Passenger Class", xlab="Passenger Class", ylab="Number of Passengers", col=c("purple","green","blue"))
+```
+#Here, we have created a plot for the passenger class in the titanic ship. We can see that most passengers were from the Third class followed by first and second class.
+
+
+#Conclusion: We have performed a lot of analysis on the given Titanic dataset to refine the data and hence perform various functions as shown above.
+
+
+#It was not possible to get the the correlation between age and fare vraiable as the fare variable is not present in the dataset.
+
+
